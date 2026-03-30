@@ -8,7 +8,7 @@ out vec2 TexCoord;
 uniform float timeValue;
 
 void main() { 
-    vec3 center = vec3(0.0, 0.0, 0.0);
+    vec3 center = vec3(0.0, -0.166, 0.2); 
     vec3 pos = aPos - center;
 
     float angle = timeValue;
@@ -16,17 +16,21 @@ void main() {
     float cosA = cos(angle);
 
     mat3 rotation = mat3(
-        cosA,  0.0, sinA,
-        0.0,   1.0, 0.0,
-        -sinA, 0.0, cosA
+        cosA,  sinA,0.0, 
+       sinA, cosA, 0.0 , 
+       0.0,   0.0, 1.0
+       
     );
-    
-    pos.z += sin(timeValue) * 0.5;
-    pos = rotation * pos;
+    mat3 rotationZ = mat3(
+        cosA,  0.0, sinA,       
+       0.0,   1.0, 0.0,
+       sinA,  0.0 ,cosA
+    );
+    //pos.z += sin(timeValue) * 0.5;
+    pos = rotation * pos*rotationZ;
 
     // Optional circular offset
-    vec2 offset = vec2(sin(timeValue) * 0.5, cos(timeValue) * 0.5);
-    pos.xy += offset;
+    
 
     gl_Position = vec4(pos + center, 1.0);
 

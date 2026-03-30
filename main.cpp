@@ -8,7 +8,7 @@
 #include "EBO.h"
 void frame_resize_viewport(GLFWwindow *, int, int);
 void process_Input(GLFWwindow *);
-
+void mouse_callback(GLFWwindow* , double , double );
 float vertices[] = {
     // positions         // colors           // texture coords
     0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // bottom right
@@ -32,14 +32,25 @@ float textureCoordinate[] = {
 
 unsigned int indices[] = {0, 1, 2, 1, 3, 2};
 unsigned int indicesB[] = {0, 1, 2};
-
+double mouseX, mouseY;
 int main()
 {
     // Initialize image loading
     int width, height, nrChannels;
     unsigned char *imgData = stbi_load("Assets/wall.jpg", &width, &height, &nrChannels, 0);
-
+    
     if (!imgData)
+    {
+        std::cout << "FAILED TO LOAD IMAGE" << std::endl;
+    }
+    else
+    {
+        std::cout << "TEXTURE LOADED CORRECTLY" << std::endl;
+    }
+
+    int width2, height2, nrChannels2;
+    unsigned char* imgData2 = stbi_load("Assets/weather.jpg", &width2, &height2, &nrChannels2, 0);
+    if (!imgData2)
     {
         std::cout << "FAILED TO LOAD IMAGE" << std::endl;
     }
@@ -70,11 +81,11 @@ int main()
     }
     glViewport(0, 0, 800, 600);
     glfwSetFramebufferSizeCallback(glfwWindow, frame_resize_viewport);
+    glfwSetCursorPosCallback(glfwWindow, mouse_callback);
 
-    unsigned int texture;
+    unsigned int texture, texture2;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -93,7 +104,29 @@ int main()
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, imgData);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
+
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    if (imgData2)
+    {
+        GLenum format2 = GL_RGB;
+        if (nrChannels2 == 1)
+            format2 = GL_RED;
+        else if (nrChannels2 == 3)
+            format2 = GL_RGB;
+        else if (nrChannels2 == 4)
+            format2 = GL_RGBA;
+
+        glTexImage2D(GL_TEXTURE_2D, 0, format2, width2, height2, 0, format2, GL_UNSIGNED_BYTE, imgData2);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
     stbi_image_free(imgData);
+    stbi_image_free(imgData2);
 
     VAO vao1;
     vao1.Bind();
@@ -133,6 +166,10 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         staticShader.use();
+        staticShader.setVec2("mousePos", ((float)mouseX / 800.0f) * 2.0f - 1.0f, 1.0f - ((float)mouseY / 600.0f) * 2.0f);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         vao1.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -141,10 +178,15 @@ int main()
         vao1.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-        glBindTexture(GL_TEXTURE_2D, texture);
-
         animatedShader.use();
+        animatedShader.setInt("ourTexture", 0);
+        animatedShader.setInt("ourTexture2", 1);
         animatedShader.setFloat("timeValue", timeValue);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         vao2.Bind();
@@ -175,11 +217,15 @@ void frame_resize_viewport(GLFWwindow *window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
-
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    mouseX = xpos;
+    mouseY = ypos;
+}
 void process_Input(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    {
+    {   
         glfwSetWindowShouldClose(window, true);
     }
 }
