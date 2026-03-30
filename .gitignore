@@ -16,6 +16,7 @@
 /Debug
 /x64
 # IDE / editor files
+out.txt
 .vscode/
 .vs
 .idea/
