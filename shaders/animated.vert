@@ -6,10 +6,13 @@ out vec3 vertexColor;
 out vec2 TexCoord;
 
 uniform float timeValue;
+uniform vec2 mousePos;
 
 void main() { 
     vec3 center = vec3(0.0, -0.166, 0.2); 
-    vec3 pos = aPos - center;
+     float offset = float(gl_InstanceID) * 0.3;
+    vec3 instanceOffset = vec3(offset, 0.0, 0.0);
+    vec3 pos = aPos - center+ instanceOffset;
 
     float angle = timeValue;
     float sinA = sin(angle);
@@ -27,11 +30,9 @@ void main() {
        sinA,  0.0 ,cosA
     );
     //pos.z += sin(timeValue) * 0.5;
-    pos = rotation * pos*rotationZ;
+   pos =  pos*rotation;
 
-    // Optional circular offset
     
-
     gl_Position = vec4(pos + center, 1.0);
 
     vertexColor = ((pos + aPos) / 2.0) + 0.5; 

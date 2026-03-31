@@ -10,17 +10,34 @@ void frame_resize_viewport(GLFWwindow *, int, int);
 void process_Input(GLFWwindow *);
 void mouse_callback(GLFWwindow* , double , double );
 float vertices[] = {
-    // positions         // colors           // texture coords
-    0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // bottom left
-    0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,   // top right
-    -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top left
+    0.75f, -0.75f,1.0f, 
+    1.0f, 0.0f, 0.0f, 
+    2.0f, 0.0f,  // bottom right
+
+    -0.75f, -0.75f,1.0f,
+    0.0f, 1.0f, 0.0f, 
+    0.0f, 0.0f, // bottom left
+
+    1.0f, 1.0f, 0.2f, 
+    0.0f, 0.0f, 1.0f, 
+    4.0f, 4.0f,   // top right
+
+    -1.0f, 1.0f, 0.2f, 
+    1.0f, 1.0f, 0.0f, 
+    0.0f, 2.0f   // top left
 };
 float verticesB[] = {
-    // positions         // colors           // texture coords
-    0.5f, -0.5f, 0.2f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.2f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // bottom left
-    0.0f, 0.5f, 0.2f, 0.0f, 0.0f, 1.0f, 0.5f, 1.0f    // top
+    0.5f, -0.5f, 0.0f, 
+    1.0f, 0.0f, 0.0f, 
+    1.0f, 0.0f,  // bottom right
+
+    -0.5f, -0.5f, 0.0f,
+    0.0f, 1.0f, 0.0f, 
+    0.0f, 0.0f, // bottom left
+
+    0.0f, 0.5f, 0.0f,
+    0.0f, 0.0f, 1.0f,
+    0.5f, 1.0f    // top
 };
 
 float textureCoordinate[] = {
@@ -29,7 +46,7 @@ float textureCoordinate[] = {
     0.0f, 1.0f
 
 };
-
+ float mixValue=0.5;
 unsigned int indices[] = {0, 1, 2, 1, 3, 2};
 unsigned int indicesB[] = {0, 1, 2};
 double mouseX, mouseY;
@@ -49,7 +66,7 @@ int main()
     }
 
     int width2, height2, nrChannels2;
-    unsigned char* imgData2 = stbi_load("Assets/weather.jpg", &width2, &height2, &nrChannels2, 0);
+    unsigned char* imgData2 = stbi_load("Assets/aswomeFace.png", &width2, &height2, &nrChannels2, 0);
     if (!imgData2)
     {
         std::cout << "FAILED TO LOAD IMAGE" << std::endl;
@@ -122,7 +139,7 @@ int main()
         else if (nrChannels2 == 4)
             format2 = GL_RGBA;
 
-        glTexImage2D(GL_TEXTURE_2D, 0, format2, width2, height2, 0, format2, GL_UNSIGNED_BYTE, imgData2);
+        glTexImage2D(GL_TEXTURE_2D, 0, format2, width2/4, height2/4, 0, format2, GL_UNSIGNED_BYTE, imgData2);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     stbi_image_free(imgData);
@@ -182,7 +199,8 @@ int main()
         animatedShader.setInt("ourTexture", 0);
         animatedShader.setInt("ourTexture2", 1);
         animatedShader.setFloat("timeValue", timeValue);
-
+        animatedShader.setVec2("mousePos", ((float)mouseX / 800.0f) * 2.0f - 1.0f, 1.0f - ((float)mouseY / 600.0f) * 2.0f);
+        animatedShader.setFloat("mixValue", mixValue);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
         glActiveTexture(GL_TEXTURE1);
@@ -191,7 +209,7 @@ int main()
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         vao2.Bind();
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 3, 4);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         vao2.Bind();
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
@@ -227,5 +245,30 @@ void process_Input(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {   
         glfwSetWindowShouldClose(window, true);
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+
+    {
+        std::cout << "UP ARROW PRESSED" << std::endl;
+
+        if (mixValue >= 1.0f)
+    {
+        return;
+
+    }
+        mixValue += 0.001f;
+        
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+
+    {
+        std::cout << "DOWN ARROW PRESSED" << std::endl;
+        if (mixValue <= 0.0f)
+        {
+            return;
+
+        }
+        mixValue -= 0.001f;
+
     }
 }

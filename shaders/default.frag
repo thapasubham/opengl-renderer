@@ -11,5 +11,5 @@ void main()
 {
     vec4 texColor = texture(ourTexture, TexCoord);
     vec4 mouseEffect = vec4(mousePos.x * 0.5 + 0.5, mousePos.y * 0.5 + 0.5, 0.5, 1.0);
-    FragColor = texColor * vec4(ourColor, 1.0) * mouseEffect;
+    FragColor = texColor * vec4(ourColor, 1.0) ;
 }

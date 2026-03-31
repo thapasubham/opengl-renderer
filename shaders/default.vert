@@ -8,7 +8,7 @@ out vec2 TexCoord;
 uniform vec2 mousePos;
 void main()
 {
-    gl_Position = vec4(aPos +vec3(mousePos, 0.0), 1.0);
+    gl_Position = vec4(aPos , 1.0);
     ourColor = aColor;
     TexCoord = aTexCoord;
 }
