@@ -139,7 +139,8 @@ int main()
     vbo1.Unbind();
     ebo1.Unbind();
 
-    Shader cubeShader("shaders/default.vert", "shaders/default.frag");
+    Shader texturedShader("shaders/default.vert", "shaders/default.frag");
+    Shader coordinateShader("shaders/coordinate.vert", "shaders/coordinate.frag");
 
     while (!glfwWindowShouldClose(glfwWindow))
     {
@@ -149,21 +150,20 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        cubeShader.use();
+        // texturedShader.use();
+        coordinateShader.use();
 
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
 
         model = glm::rotate(model, timeValue * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-        
         view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        
         projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-        cubeShader.setMat4("model", model);
-        cubeShader.setMat4("view", view);
-        cubeShader.setMat4("projection", projection);
+        coordinateShader.setMat4("model", model);
+        coordinateShader.setMat4("view", view);
+        coordinateShader.setMat4("projection", projection);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
