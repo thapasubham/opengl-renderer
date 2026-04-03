@@ -1,5 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include "Shader.h"
 #include "stb_image.h"
@@ -10,45 +13,46 @@ void frame_resize_viewport(GLFWwindow *, int, int);
 void process_Input(GLFWwindow *);
 void mouse_callback(GLFWwindow* , double , double );
 float vertices[] = {
-    0.75f, -0.75f,1.0f, 
-    1.0f, 0.0f, 0.0f, 
-    2.0f, 0.0f,  // bottom right
+    //coordinate            color               texture coordinate
+    -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f,
 
-    -0.75f, -0.75f,1.0f,
-    0.0f, 1.0f, 0.0f, 
-    0.0f, 0.0f, // bottom left
+    -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f,
 
-    1.0f, 1.0f, 0.2f, 
-    0.0f, 0.0f, 1.0f, 
-    4.0f, 4.0f,   // top right
+    -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f,
 
-    -1.0f, 1.0f, 0.2f, 
-    1.0f, 1.0f, 0.0f, 
-    0.0f, 2.0f   // top left
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f
 };
-float verticesB[] = {
-    0.5f, -0.5f, 0.0f, 
-    1.0f, 0.0f, 0.0f, 
-    1.0f, 0.0f,  // bottom right
 
-    -0.5f, -0.5f, 0.0f,
-    0.0f, 1.0f, 0.0f, 
-    0.0f, 0.0f, // bottom left
-
-    0.0f, 0.5f, 0.0f,
-    0.0f, 0.0f, 1.0f,
-    0.5f, 1.0f    // top
+unsigned int indices[] = {
+    0, 1, 2, 2, 3, 0,
+    4, 5, 6, 6, 7, 4,
+    8, 9, 10, 10, 11, 8,
+    12, 13, 14, 14, 15, 12,
+    16, 17, 18, 18, 19, 16,
+    20, 21, 22, 22, 23, 20
 };
-
-float textureCoordinate[] = {
-    0.5f, 1.0f,
-    1.0f, 0.0f,
-    0.0f, 1.0f
-
-};
- float mixValue=0.5;
-unsigned int indices[] = {0, 1, 2, 1, 3, 2};
-unsigned int indicesB[] = {0, 1, 2};
 double mouseX, mouseY;
 int main()
 {
@@ -97,6 +101,7 @@ int main()
         return -1;
     }
     glViewport(0, 0, 800, 600);
+    glEnable(GL_DEPTH_TEST);
     glfwSetFramebufferSizeCallback(glfwWindow, frame_resize_viewport);
     glfwSetCursorPosCallback(glfwWindow, mouse_callback);
 
@@ -111,35 +116,11 @@ int main()
     if (imgData)
     {
         GLenum format = GL_RGB;
-        if (nrChannels == 1)
-            format = GL_RED;
-        else if (nrChannels == 3)
-            format = GL_RGB;
-        else if (nrChannels == 4)
-            format = GL_RGBA;
+        if (nrChannels == 1) format = GL_RED;
+        else if (nrChannels == 3) format = GL_RGB;
+        else if (nrChannels == 4) format = GL_RGBA;
 
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, imgData);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    if (imgData2)
-    {
-        GLenum format2 = GL_RGB;
-        if (nrChannels2 == 1)
-            format2 = GL_RED;
-        else if (nrChannels2 == 3)
-            format2 = GL_RGB;
-        else if (nrChannels2 == 4)
-            format2 = GL_RGBA;
-
-        glTexImage2D(GL_TEXTURE_2D, 0, format2, width2/4, height2/4, 0, format2, GL_UNSIGNED_BYTE, imgData2);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     stbi_image_free(imgData);
@@ -158,61 +139,37 @@ int main()
     vbo1.Unbind();
     ebo1.Unbind();
 
-    VAO vao2;
-    vao2.Bind();
-    VBO vbo2(verticesB, sizeof(verticesB));
-    EBO ebo2(indicesB, sizeof(indicesB));
-
-    vao2.LinkAttrib(vbo2, 0, 3, GL_FLOAT, 8 * sizeof(float), (void *)0);
-    vao2.LinkAttrib(vbo2, 1, 3, GL_FLOAT, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-    vao2.LinkAttrib(vbo2, 2, 2, GL_FLOAT, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-
-    vao2.Unbind();
-    vbo2.Unbind();
-    ebo2.Unbind();
-
-    Shader staticShader("shaders/default.vert", "shaders/default.frag");
-    Shader animatedShader("shaders/animated.vert", "shaders/animated.frag");
+    Shader cubeShader("shaders/default.vert", "shaders/default.frag");
 
     while (!glfwWindowShouldClose(glfwWindow))
     {
         float timeValue = (float)glfwGetTime();
 
         process_Input(glfwWindow);
-        glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        staticShader.use();
-        staticShader.setVec2("mousePos", ((float)mouseX / 800.0f) * 2.0f - 1.0f, 1.0f - ((float)mouseY / 600.0f) * 2.0f);
+        cubeShader.use();
+
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 view = glm::mat4(1.0f);
+        glm::mat4 projection = glm::mat4(1.0f);
+
+        model = glm::rotate(model, timeValue * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+        
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        
+        projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
+        cubeShader.setMat4("model", model);
+        cubeShader.setMat4("view", view);
+        cubeShader.setMat4("projection", projection);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        
         vao1.Bind();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        vao1.Bind();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-        animatedShader.use();
-        animatedShader.setInt("ourTexture", 0);
-        animatedShader.setInt("ourTexture2", 1);
-        animatedShader.setFloat("timeValue", timeValue);
-        animatedShader.setVec2("mousePos", ((float)mouseX / 800.0f) * 2.0f - 1.0f, 1.0f - ((float)mouseY / 600.0f) * 2.0f);
-        animatedShader.setFloat("mixValue", mixValue);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        vao2.Bind();
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 3, 4);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        vao2.Bind();
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(glfwWindow);
         glfwPollEvents();
@@ -220,9 +177,6 @@ int main()
     vao1.Delete();
     vbo1.Delete();
     ebo1.Delete();
-    vao2.Delete();
-    vbo2.Delete();
-    ebo2.Delete();
     glDeleteTextures(1, &texture);
 
     std::cout << "Terminating Program" << std::endl;
@@ -245,30 +199,5 @@ void process_Input(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {   
         glfwSetWindowShouldClose(window, true);
-    }
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-
-    {
-        std::cout << "UP ARROW PRESSED" << std::endl;
-
-        if (mixValue >= 1.0f)
-    {
-        return;
-
-    }
-        mixValue += 0.001f;
-        
-    }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-
-    {
-        std::cout << "DOWN ARROW PRESSED" << std::endl;
-        if (mixValue <= 0.0f)
-        {
-            return;
-
-        }
-        mixValue -= 0.001f;
-
     }
 }
